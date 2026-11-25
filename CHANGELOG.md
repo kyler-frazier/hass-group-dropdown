@@ -6,6 +6,8 @@ All notable changes to this project are documented here. The format is based on
 
 ## [Unreleased]
 
+## [0.2.1] - 2026-11-25
+
 ### Fixed
 
 - Opening a list slides and fades it in. It used to stay at no height, then appear all at once.
@@ -27,6 +29,7 @@ All notable changes to this project are documented here. The format is based on
 - `group-dropdown-tile`, a tile with a caret, and `group-dropdown-list`, the list of the group's
   members it opens.
 
-[Unreleased]: https://github.com/kyler-frazier/hass-group-dropdown/compare/v0.2.0...HEAD
+[Unreleased]: https://github.com/kyler-frazier/hass-group-dropdown/compare/v0.2.1...HEAD
+[0.2.1]: https://github.com/kyler-frazier/hass-group-dropdown/compare/v0.2.0...v0.2.1
 [0.2.0]: https://github.com/kyler-frazier/hass-group-dropdown/compare/v0.1.0...v0.2.0
 [0.1.0]: https://github.com/kyler-frazier/hass-group-dropdown/releases/tag/v0.1.0

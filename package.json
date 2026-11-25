@@ -1,6 +1,6 @@
 {
   "name": "hass-group-dropdown",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "private": true,
   "description": "Home Assistant tile card with a caret that drops down a group's members.",
   "license": "MIT",

@@ -233,6 +233,17 @@ for (const entity of [LIVING, ALL]) {
   });
 }
 
+test("a half-open list can't be scrolled, so its tiles don't shift", async ({ page }) => {
+  await open(page, LIVING);
+  const scrolled = await list(page, LIVING).evaluate((el) => {
+    const rows = el.shadowRoot.querySelector(".rows");
+    rows.style.height = "20px";
+    rows.scrollTop = 10;
+    return [rows.clientHeight < rows.scrollHeight, rows.scrollTop];
+  });
+  expect(scrolled).toEqual([true, 0]);
+});
+
 test("tapping midway turns the animation around without a jump", async ({ page }) => {
   const seen = (await frames(page, LIVING, true)).map(([h]) => h);
   expect(Math.max(...seen)).toBeLessThan(56);

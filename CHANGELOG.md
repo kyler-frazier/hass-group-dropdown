@@ -6,6 +6,14 @@ All notable changes to this project are documented here. The format is based on
 
 ## [Unreleased]
 
+### Changed
+
+- Lists are indented 12px on both sides, instead of 16px on the left only.
+
+### Fixed
+
+- No gap between a list and the cards below it while it slides.
+
 ## [0.2.1] - 2026-11-25
 
 ### Fixed

@@ -6,6 +6,14 @@ All notable changes to this project are documented here. The format is based on
 
 ## [Unreleased]
 
+### Added
+
+- `columns` option on `group-dropdown-list`: how many columns its tiles are in.
+
+### Changed
+
+- Lists have 2 columns by default, instead of 1. Set `columns: 1` for the old layout.
+
 ## [0.1.0] - 2026-11-25
 
 ### Added

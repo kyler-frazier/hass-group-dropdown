@@ -64,8 +64,8 @@ test("the list is full width under the row, and pushes down only what's below", 
   expect(allBefore.y - (tileBefore.y + tileBefore.height)).toBe(8);
 
   await open(page, LIVING);
-  // Two 56px rows with 8px between, and the grid's 8px
-  await expect.poll(async () => (await box(tile(page, ALL))).y - allBefore.y).toBe(128);
+  // One 56px row of two, and the grid's 8px
+  await expect.poll(async () => (await box(tile(page, ALL))).y - allBefore.y).toBe(64);
   expect(await box(tile(page, LIVING))).toEqual(tileBefore);
   expect(await box(neighbour)).toEqual(neighbourBefore);
   const opened = await box(list(page, LIVING));
@@ -74,6 +74,60 @@ test("the list is full width under the row, and pushes down only what's below", 
 
   await caret(page, LIVING).tap();
   await expect.poll(async () => (await box(tile(page, ALL))).y).toBe(allBefore.y);
+});
+
+test("columns sets how many tiles are side by side, 2 by default", async ({ page }) => {
+  await open(page, LIVING);
+  const boxes = () => Promise.all([0, 1].map((i) => rows(list(page, LIVING)).nth(i).boundingBox()));
+  const expectSideBySide = async () => {
+    await expect
+      .poll(async () => {
+        const [a, b] = await boxes();
+        return [b.y - a.y, Math.round(b.x - (a.x + a.width)), Math.round(b.width - a.width)];
+      })
+      .toEqual([0, 8, 0]);
+  };
+  await expectSideBySide();
+
+  const setColumns = (columns) =>
+    list(page, LIVING).evaluate((el, columns) => {
+      el.setConfig({ type: "custom:group-dropdown-list", entity: el._config.entity, columns });
+    }, columns);
+  await setColumns(1);
+  await expect
+    .poll(async () => {
+      const [a, b] = await boxes();
+      return [b.y - a.y, b.x - a.x];
+    })
+    .toEqual([64, 0]);
+  for (const bad of [0, 1.5, "2"])
+    await expect(setColumns(bad)).rejects.toThrow("columns must be a whole number");
+});
+
+test("an open nested list spans the columns, and leaves no gap beside its group", async ({
+  page,
+}) => {
+  await open(page, ALL);
+  const outer = list(page, ALL);
+  const [living, kitchen] = [0, 1].map((i) => outer.locator("group-dropdown-tile").nth(i));
+  await living.locator("button").tap();
+  const inner = outer.locator("group-dropdown-list").first();
+  await expect(inner).toBeVisible();
+  const [l, k] = [await living.boundingBox(), await kitchen.boundingBox()];
+  expect(k.y).toBe(l.y);
+  expect(k.x).toBeGreaterThan(l.x);
+  await expect
+    .poll(async () => {
+      const b = await inner.boundingBox();
+      return [b.x, b.x + b.width, b.y];
+    })
+    .toEqual([l.x, k.x + k.width, l.y + l.height + 8]);
+  // Columns are inherited
+  await outer.evaluate((el) => el.setConfig({ ...el._config, columns: 1 }));
+  await outer.locator("group-dropdown-tile button").first().tap();
+  const [a, b] = [rows(inner).nth(0), rows(inner).nth(1)];
+  await expect(b).toBeVisible();
+  expect((await b.boundingBox()).x).toBe((await a.boundingBox()).x);
 });
 
 test("several lists stay open at once", async ({ page }) => {

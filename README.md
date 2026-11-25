@@ -41,8 +41,9 @@ the last card of its row, in the same section:
 ```
 
 `group-dropdown-tile` takes every option of Home Assistant's
-[tile card](https://www.home-assistant.io/dashboards/tile/). `group-dropdown-list` only takes
-`entity`. It works with any entity that lists its members in an `entity_id` attribute, like light,
+[tile card](https://www.home-assistant.io/dashboards/tile/). `group-dropdown-list` takes `entity`
+and `columns`, the number of columns its tiles are in (default 2, also used by the groups inside
+it). It works with any entity that lists its members in an `entity_id` attribute, like light,
 switch and cover groups.
 
 ## Contributing

@@ -51,6 +51,7 @@ Behavior changes need a test.
 - **The caret never runs the tile's actions.** It's a sibling of the tile, not inside it.
 - **Fail loud.** A caret with no list in its section throws, rather than doing nothing.
 - **Dashboards start compact.** Tiles and lists close when disconnected (leaving the view).
+- **Lists slide and fade both ways,** and a tap midway turns the animation around.
 - **An open nested list spans every column,** and leaves no gap beside its group.
 - **Rows are only rebuilt when the group's members change,** not on every state update.
 

@@ -94,10 +94,13 @@ const VERSION = "0.0.0";
       super();
       this.attachShadow({ mode: "open" }).innerHTML = `
         <style>
-          :host { display: block; overflow: hidden; padding-inline-start: 16px; }
+          :host {
+            display: grid; grid-template: 1fr / minmax(0, 1fr); padding-inline-start: 16px;
+          }
           :host([hidden]) { display: none; }
           /* dense: the tile after an open nested list fills the gap beside its group */
           .rows {
+            min-height: 0; overflow: hidden;
             display: grid; grid-auto-flow: row dense; gap: var(--row-gap, 8px);
             grid-template-columns: repeat(var(--columns), minmax(0, 1fr));
           }
@@ -106,6 +109,14 @@ const VERSION = "0.0.0";
         </style>
         <div class="rows"></div>`;
       this._rows = this.shadowRoot.querySelector(".rows");
+      // Grid rows rather than height: Home Assistant shows the card around this one a moment later,
+      // so there's no height to measure yet
+      this._animation = this.animate(
+        { gridTemplateRows: ["0fr", "1fr"], opacity: [0, 1] },
+        { easing: "ease-out" },
+      );
+      this._animation.cancel();
+      this._animation.onfinish = () => this._setHidden(!this._open && !this._preview);
       this._onToggle = (ev) => {
         if (ev.detail.entity !== this._config.entity) return;
         ev.preventDefault();
@@ -144,7 +155,7 @@ const VERSION = "0.0.0";
 
     disconnectedCallback() {
       this._root.removeEventListener(EVENT, this._onToggle);
-      this._animation?.cancel();
+      this._animation.cancel();
       this._open = false;
       this._setHidden(!this._preview);
     }
@@ -159,16 +170,12 @@ const VERSION = "0.0.0";
       this._open = open;
       await this._update();
       if (this._open !== open || !this.isConnected) return;
-      const from = this.hidden ? 0 : this.offsetHeight;
-      this._animation?.cancel();
+      if (!open && this.hidden) return; // closed again before it was built
       this._setHidden(false);
-      const to = open ? this.offsetHeight : 0;
       const still = matchMedia("(prefers-reduced-motion)").matches;
-      const animation = (this._animation = this.animate(
-        { height: [`${from}px`, `${to}px`], opacity: [open ? 0 : 1, open ? 1 : 0] },
-        { duration: still ? 0 : 200, easing: "ease" },
-      ));
-      animation.onfinish = () => this._setHidden(!open);
+      this._animation.effect.updateTiming({ duration: still ? 0 : 250 });
+      this._animation.playbackRate = open ? 1 : -1; // turns around from where it is
+      this._animation.play();
     }
 
     async _update() {

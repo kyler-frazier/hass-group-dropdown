@@ -197,6 +197,48 @@ test("tapping again mid-animation ends up closed", async ({ page }) => {
   await stays(() => list(page, LIVING).isHidden(), true);
 });
 
+/** Taps a caret and returns the list's [height, opacity] in each frame until it's done. */
+const frames = (page, entity, again) =>
+  list(page, entity).evaluate(async (el, again) => {
+    const button = [...el.getRootNode().querySelectorAll("group-dropdown-tile")]
+      .find((t) => t._config.entity === el._config.entity)
+      .shadowRoot.querySelector("button");
+    const result = [];
+    button.click();
+    const start = performance.now();
+    let turned;
+    while (performance.now() - start < 1000) {
+      await new Promise(requestAnimationFrame);
+      result.push([el.offsetHeight, Number(getComputedStyle(el).opacity)]);
+      if (again && !turned && el.offsetHeight > 10 && el.offsetHeight < 50) {
+        turned = result.length;
+        button.click();
+      }
+    }
+    return again ? result.slice(turned - 1) : result;
+  }, again);
+
+for (const entity of [LIVING, ALL]) {
+  test(`a list slides and fades both ways (${entity})`, async ({ page }) => {
+    const midway = (seen) => seen.filter(([h, o]) => h > 0 && h < 56 && o > 0 && o < 1);
+    const heights = (seen) => seen.map(([h]) => h);
+    const opening = await frames(page, entity);
+    expect(midway(opening).length).toBeGreaterThan(3);
+    expect(heights(opening)).toEqual(heights(opening).sort((a, b) => a - b));
+    expect(opening.at(-1)).toEqual([56, 1]);
+    const closing = await frames(page, entity);
+    expect(midway(closing).length).toBeGreaterThan(3);
+    expect(heights(closing)).toEqual(heights(closing).sort((a, b) => b - a));
+    expect(closing.at(-1)[0]).toBe(0);
+  });
+}
+
+test("tapping midway turns the animation around without a jump", async ({ page }) => {
+  const seen = (await frames(page, LIVING, true)).map(([h]) => h);
+  expect(Math.max(...seen)).toBeLessThan(56);
+  expect(seen.at(-1)).toBe(0);
+});
+
 test("a list is closed again after leaving the view", async ({ page }) => {
   await open(page, LIVING);
   const path = (path) =>

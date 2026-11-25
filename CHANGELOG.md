@@ -6,6 +6,10 @@ All notable changes to this project are documented here. The format is based on
 
 ## [Unreleased]
 
+### Fixed
+
+- Opening a list slides and fades it in. It used to stay at no height, then appear all at once.
+
 ## [0.2.0] - 2026-11-25
 
 ### Added

@@ -1,0 +1,6 @@
+mode: storage
+dashboards:
+  test-sections:
+    mode: yaml
+    title: Sections
+    filename: dashboards/sections.yaml

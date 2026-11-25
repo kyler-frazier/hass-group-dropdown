@@ -1,0 +1,48 @@
+name: Tests
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+  schedule:
+    # Daily, against beta and dev too, to catch Home Assistant frontend changes that break the
+    # plugin before they're released
+    - cron: "17 6 * * *"
+
+permissions:
+  contents: read
+
+jobs:
+  playwright:
+    name: Playwright (Home Assistant ${{ matrix.hass }})
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        # dev (nightly) breaks for reasons unrelated to a PR, so only scheduled and manual runs
+        # use it
+        hass: ${{ fromJSON((github.event_name == 'schedule' || github.event_name == 'workflow_dispatch') && '["stable", "beta", "dev"]' || '["stable", "beta"]') }}
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium
+      - name: Start Home Assistant
+        run: docker compose up --detach --wait
+        env:
+          HASS_VERSION: ${{ matrix.hass }}
+      - run: npx playwright test
+      - name: Home Assistant logs
+        if: failure()
+        run: docker compose logs hass
+      - uses: actions/upload-artifact@v7
+        if: failure()
+        with:
+          name: playwright-report-${{ matrix.hass }}
+          path: playwright-report/
+          retention-days: 14

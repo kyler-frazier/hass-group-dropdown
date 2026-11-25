@@ -1,0 +1,37 @@
+views:
+  - title: Home
+    path: home
+    type: sections
+    max_columns: 1
+    sections:
+      - type: grid
+        cards:
+          - type: custom:group-dropdown-tile
+            entity: light.living_room_lights
+            name: Living room lights
+            icon: mdi:lamps
+            tap_action: { action: toggle }
+            icon_tap_action: { action: toggle }
+            hold_action: { action: more-info }
+            grid_options: { columns: 6, rows: 2 }
+          - type: tile
+            entity: light.desk_light
+            grid_options: { columns: 6, rows: 2 }
+          - { type: custom:group-dropdown-list, entity: light.living_room_lights }
+          - type: custom:group-dropdown-tile
+            entity: light.all_lights
+            tap_action: { action: toggle }
+            hold_action: { action: more-info }
+            grid_options: { columns: full }
+          - { type: custom:group-dropdown-list, entity: light.all_lights }
+          - type: tile
+            entity: input_boolean.desk
+            grid_options: { columns: full }
+  - title: Other
+    path: other
+    type: sections
+    sections:
+      - type: grid
+        cards:
+          - type: markdown
+            content: Other view

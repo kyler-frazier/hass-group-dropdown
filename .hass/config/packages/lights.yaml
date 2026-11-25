@@ -1,0 +1,29 @@
+# Room groups, and a group of those groups
+input_boolean:
+  lamp: { name: Lamp, initial: false }
+  fan: { name: Fan, initial: false }
+  desk: { name: Desk, initial: false }
+template:
+  - light:
+      - name: Lamp light
+        state: "{{ is_state('input_boolean.lamp', 'on') }}"
+        turn_on: { action: input_boolean.turn_on, target: { entity_id: input_boolean.lamp } }
+        turn_off: { action: input_boolean.turn_off, target: { entity_id: input_boolean.lamp } }
+      - name: Fan light
+        state: "{{ is_state('input_boolean.fan', 'on') }}"
+        turn_on: { action: input_boolean.turn_on, target: { entity_id: input_boolean.fan } }
+        turn_off: { action: input_boolean.turn_off, target: { entity_id: input_boolean.fan } }
+      - name: Desk light
+        state: "{{ is_state('input_boolean.desk', 'on') }}"
+        turn_on: { action: input_boolean.turn_on, target: { entity_id: input_boolean.desk } }
+        turn_off: { action: input_boolean.turn_off, target: { entity_id: input_boolean.desk } }
+light:
+  - platform: group
+    name: Living room lights
+    entities: [light.lamp_light, light.fan_light]
+  - platform: group
+    name: Kitchen lights
+    entities: [light.desk_light]
+  - platform: group
+    name: All lights
+    entities: [light.living_room_lights, light.kitchen_lights]

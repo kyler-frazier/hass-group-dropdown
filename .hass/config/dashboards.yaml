@@ -4,3 +4,7 @@ dashboards:
     mode: yaml
     title: Sections
     filename: dashboards/sections.yaml
+  demo-home:
+    mode: yaml
+    title: Demo
+    filename: dashboards/demo.yaml

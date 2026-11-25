@@ -6,6 +6,10 @@
 
 A tile with a caret that drops down the group's members, pushing down the cards below.
 
+<p align="center">
+  <img src="docs/demo.gif" alt="Opening group tiles' lists, which push down the cards below" width="320">
+</p>
+
 - **The caret only opens and closes the list.** The rest of the tile keeps its tap and hold
   actions.
 - **Members are normal tiles.** Tap to toggle, hold for details. They're read from the group, so

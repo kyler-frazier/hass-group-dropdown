@@ -1,0 +1,23 @@
+views:
+  - title: Home
+    path: home
+    icon: mdi:home
+    type: sections
+    sections:
+      - type: grid
+        cards:
+          - { type: heading, heading: Lights }
+          - type: custom:group-dropdown-tile
+            entity: group.demo_living_room
+            tap_action: { action: toggle }
+          - type: tile
+            entity: input_boolean.demo_bedroom
+            tap_action: { action: toggle }
+          - { type: custom:group-dropdown-list, entity: group.demo_living_room }
+          - type: custom:group-dropdown-tile
+            entity: group.demo_kitchen
+            tap_action: { action: toggle }
+          - type: tile
+            entity: input_boolean.demo_porch
+            tap_action: { action: toggle }
+          - { type: custom:group-dropdown-list, entity: group.demo_kitchen }

@@ -197,7 +197,7 @@ test("tapping again mid-animation ends up closed", async ({ page }) => {
   await stays(() => list(page, LIVING).isHidden(), true);
 });
 
-/** Taps a caret and returns the list's [height, opacity] in each frame until it's done. */
+/** Taps a caret and returns the list's [height, opacity, its tiles' height] in each frame until it's done. */
 const frames = (page, entity, again) =>
   list(page, entity).evaluate(async (el, again) => {
     const button = [...el.getRootNode().querySelectorAll("group-dropdown-tile")]
@@ -209,7 +209,9 @@ const frames = (page, entity, again) =>
     let turned;
     while (performance.now() - start < 1000) {
       await new Promise(requestAnimationFrame);
-      result.push([el.offsetHeight, Number(getComputedStyle(el).opacity)]);
+      const rows = el.shadowRoot.querySelector(".rows");
+      const opacity = Number(getComputedStyle(el).opacity);
+      result.push([el.offsetHeight, opacity, rows.offsetHeight]);
       if (again && !turned && el.offsetHeight > 10 && el.offsetHeight < 50) {
         turned = result.length;
         button.click();
@@ -222,24 +224,41 @@ for (const entity of [LIVING, ALL]) {
   test(`a list slides and fades both ways (${entity})`, async ({ page }) => {
     const midway = (seen) => seen.filter(([h, o]) => h > 0 && h < 56 && o > 0 && o < 1);
     const heights = (seen) => seen.map(([h]) => h);
+    const gaps = (seen) => seen.filter(([h, , tiles]) => tiles < h);
     const opening = await frames(page, entity);
     expect(midway(opening).length).toBeGreaterThan(3);
     expect(heights(opening)).toEqual(heights(opening).sort((a, b) => a - b));
-    expect(opening.at(-1)).toEqual([56, 1]);
+    expect(opening.at(-1)).toEqual([56, 1, 56]);
+    expect(gaps(opening)).toEqual([]);
     const closing = await frames(page, entity);
     expect(midway(closing).length).toBeGreaterThan(3);
     expect(heights(closing)).toEqual(heights(closing).sort((a, b) => b - a));
     expect(closing.at(-1)[0]).toBe(0);
+    expect(gaps(closing)).toEqual([]);
   });
 }
+
+test("a list is indented the same on both sides, and so are nested lists", async ({ page }) => {
+  await open(page, ALL);
+  await list(page, ALL).locator("group-dropdown-tile button").first().click();
+  const nested = list(page, ALL).locator("group-dropdown-list").first();
+  for (const el of [list(page, ALL), nested]) {
+    await expect(el).toBeVisible();
+    const insets = await el.evaluate((el) => {
+      const outer = el.getBoundingClientRect();
+      const inner = el.shadowRoot.querySelector(".rows").getBoundingClientRect();
+      return [inner.left - outer.left, outer.right - inner.right];
+    });
+    expect(insets).toEqual([12, 12]);
+  }
+});
 
 test("a half-open list can't be scrolled, so its tiles don't shift", async ({ page }) => {
   await open(page, LIVING);
   const scrolled = await list(page, LIVING).evaluate((el) => {
-    const rows = el.shadowRoot.querySelector(".rows");
-    rows.style.height = "20px";
-    rows.scrollTop = 10;
-    return [rows.clientHeight < rows.scrollHeight, rows.scrollTop];
+    el.style.height = "20px";
+    el.scrollTop = 10;
+    return [el.clientHeight < el.scrollHeight, el.scrollTop];
   });
   expect(scrolled).toEqual([true, 0]);
 });

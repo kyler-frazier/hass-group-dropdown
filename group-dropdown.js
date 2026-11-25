@@ -95,12 +95,14 @@ const VERSION = "0.0.0";
       this.attachShadow({ mode: "open" }).innerHTML = `
         <style>
           :host {
-            display: grid; grid-template: 1fr / minmax(0, 1fr); padding-inline-start: 16px;
+            display: grid; grid-template: 1fr / minmax(0, 1fr); padding-inline: 12px;
+            align-items: start; /* stretched tiles would be clipped shorter than the list mid-slide */
+            overflow: clip; /* hidden can be scrolled, e.g. by focusing a tile */
           }
           :host([hidden]) { display: none; }
           /* dense: the tile after an open nested list fills the gap beside its group */
           .rows {
-            min-height: 0; overflow: clip; /* hidden can be scrolled, e.g. by focusing a tile */
+            min-height: 0;
             display: grid; grid-auto-flow: row dense; gap: var(--row-gap, 8px);
             grid-template-columns: repeat(var(--columns), minmax(0, 1fr));
           }

@@ -96,8 +96,13 @@ const VERSION = "0.0.0";
         <style>
           :host { display: block; overflow: hidden; padding-inline-start: 16px; }
           :host([hidden]) { display: none; }
-          .rows { display: flex; flex-direction: column; gap: var(--row-gap, 8px); }
+          /* dense: the tile after an open nested list fills the gap beside its group */
+          .rows {
+            display: grid; grid-auto-flow: row dense; gap: var(--row-gap, 8px);
+            grid-template-columns: repeat(var(--columns), minmax(0, 1fr));
+          }
           .rows > :not(group-dropdown-list) { min-height: 56px; }
+          .rows > group-dropdown-list { grid-column: 1 / -1; }
         </style>
         <div class="rows"></div>`;
       this._rows = this.shadowRoot.querySelector(".rows");
@@ -110,7 +115,12 @@ const VERSION = "0.0.0";
 
     setConfig(config) {
       if (!config.entity) throw new Error("entity is required");
+      const { columns = 2 } = config;
+      if (!Number.isInteger(columns) || columns < 1)
+        throw new Error("columns must be a whole number, 1 or more");
       this._config = config;
+      this._columns = columns;
+      this._rows.style.setProperty("--columns", columns);
       this._members = undefined;
       this.hidden = !this._open && !this._preview;
       this._update();
@@ -184,9 +194,14 @@ const VERSION = "0.0.0";
       };
       if (!Array.isArray(this._hass.states[entity]?.attributes.entity_id))
         return [createCardElement(config)];
-      return ["tile", "list"].map((part) =>
-        createCardElement({ ...config, type: `custom:group-dropdown-${part}` }),
-      );
+      return [
+        createCardElement({ ...config, type: "custom:group-dropdown-tile" }),
+        createCardElement({
+          type: "custom:group-dropdown-list",
+          entity,
+          columns: this._columns,
+        }),
+      ];
     }
 
     getCardSize() {

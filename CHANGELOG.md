@@ -6,9 +6,12 @@ All notable changes to this project are documented here. The format is based on
 
 ## [Unreleased]
 
+## [0.1.0] - 2026-11-25
+
 ### Added
 
 - `group-dropdown-tile`, a tile with a caret, and `group-dropdown-list`, the list of the group's
   members it opens.
 
-[Unreleased]: https://github.com/kyler-frazier/hass-group-dropdown/commits/main
+[Unreleased]: https://github.com/kyler-frazier/hass-group-dropdown/compare/v0.1.0...HEAD
+[0.1.0]: https://github.com/kyler-frazier/hass-group-dropdown/releases/tag/v0.1.0

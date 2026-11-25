@@ -1,0 +1,23 @@
+# Stand-in devices for the demo dashboard (used for the README recording)
+input_boolean:
+  demo_floor_lamp: { name: Floor lamp, icon: mdi:floor-lamp, initial: true }
+  demo_reading_lamp: { name: Reading lamp, icon: mdi:desk-lamp, initial: false }
+  demo_ceiling: { name: Ceiling, icon: mdi:ceiling-light, initial: false }
+  demo_shelf: { name: Shelf, icon: mdi:led-strip-variant, initial: true }
+  demo_counter: { name: Counter, icon: mdi:light-recessed, initial: true }
+  demo_table: { name: Table, icon: mdi:ceiling-light, initial: false }
+  demo_bedroom: { name: Bedroom, icon: mdi:lamp, initial: false }
+  demo_porch: { name: Porch, icon: mdi:outdoor-lamp, initial: false }
+group:
+  demo_living_room:
+    name: Living room
+    icon: mdi:sofa
+    entities:
+      - input_boolean.demo_floor_lamp
+      - input_boolean.demo_reading_lamp
+      - input_boolean.demo_ceiling
+      - input_boolean.demo_shelf
+  demo_kitchen:
+    name: Kitchen
+    icon: mdi:countertop
+    entities: [input_boolean.demo_counter, input_boolean.demo_table]

@@ -100,7 +100,7 @@ const VERSION = "0.0.0";
           :host([hidden]) { display: none; }
           /* dense: the tile after an open nested list fills the gap beside its group */
           .rows {
-            min-height: 0; overflow: hidden;
+            min-height: 0; overflow: clip; /* hidden can be scrolled, e.g. by focusing a tile */
             display: grid; grid-auto-flow: row dense; gap: var(--row-gap, 8px);
             grid-template-columns: repeat(var(--columns), minmax(0, 1fr));
           }
